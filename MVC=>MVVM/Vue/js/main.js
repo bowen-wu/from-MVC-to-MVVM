@@ -2,43 +2,28 @@
     simulateDataResponse()
 
     // Model 类
-    function Model({data,type}){
+    function Model({ data, type }) {
         this.data = data
         this.type = type
     }
-    Model.prototype.fetch = function({type, id}) {
+    Model.prototype.fetch = function ({ type, id }) {
         this.type = type
         this.data.id = id
         return axios.get(`/${this.type}s/${this.data.id}`).then(() => {
             // 不走
         }, ({ data }) => {
-            // *************** 从服务器获取到数据后保存到 model 中  ************** //
-            this.data = data  
-            return data
-        })
-    }
-    Model.prototype.update = function(updateData) {
-        return axios.put(`/${this.type}s/${this.data.id}`, updateData).then(() => {
-            // 不走
-        }, ({ data }) => {
-            // *************** 从服务器获取到数据后保存到 model 中  ************** //
             this.data = data
             return data
         })
     }
-
-    // // View 类
-    // function View({el,temp}){
-    //     this.el = el
-    //     this.temp = temp
-    // }
-    // View.prototype.render = function(data) {
-    //     let html = this.temp
-    //     for(let key in data){
-    //         html = html.replace(`{{${key}}}`,data[key])
-    //     }
-    //     $(this.el).html(html)
-    // }
+    Model.prototype.update = function (updateData) {
+        return axios.put(`/${this.type}s/${this.data.id}`, updateData).then(() => {
+            // 不走
+        }, ({ data }) => {
+            this.data = data
+            return data
+        })
+    }
 
     // *************** 上面是 MVC 类  ************** //
 
@@ -60,7 +45,8 @@
                 number: 0,
                 id: '',
             },
-            type: 'book'
+            type: 'book',
+            n: 1,
         },
         template: `
         <div>
@@ -68,9 +54,11 @@
                 书名： {{book.name}} 
                 数量： <span id="number">{{book.number}}</span>
             </div>
+            <input type="text" v-model="n">
+            N 的值是 {{n}}
             <div id="action">
-                <button v-on:click="addOne">add one</button>
-                <button v-on:click="minusOne">minus one</button>
+                <button v-on:click="addOne">add n</button>
+                <button v-on:click="minusOne">minus n</button>
                 <button v-on:click="reset">reset</button>
             </div>
         </div>`,
@@ -79,92 +67,33 @@
                 type: this.type,
                 id: 1
             }).then((data) => {
-                // *************** 选择从 model 中获取数据，而不是在 data 属性中  ************** //
-                // *************** model.data 和 data 数据相同 ************** //
                 this.book = model.data
             })
         },
         methods: {
             addOne() {
-                let newNumber = this.book.number + 1
                 model.update({
-                    number: newNumber
+                    number: this.book.number + (this.n - 0)
                 }).then((data) => {
-                    // *************** 选择从 model 中获取数据，而不是在 data 属性中  ************** //
                     this.book = model.data
-                    // this.view.render(data)
                 })
             },
             minusOne() {
-                let newNumber = this.book.number - 1
                 model.update({
-                    number: newNumber
+                    number: this.book.number - (this.n - 0)
                 }).then((data) => {
-                    // *************** 选择从 model 中获取数据，而不是在 data 属性中  ************** //
                     this.book = model.data
-                    // this.view.render(data)
                 })
             },
             reset() {
                 model.update({
                     number: 0
                 }).then((data) => {
-                    // *************** 选择从 model 中获取数据，而不是在 data 属性中  ************** //
                     this.book = model.data
-                    // this.view.render(data)
                 })
             },
         },
     })
-
-    // let controller = {
-    //     init({ view, model }) {
-    //         this.view = view
-    //         this.model = model
-    //         this.model.fetch({
-    //             type: 'book',
-    //             id: 1
-    //         }).then((data) => {
-    //             this.view.render(data)
-    //         })
-    //         this.bindEvents()
-    //     },
-
-        // addOne() {
-        //     let newNumber = $('#number').text() - 0 + 1
-        //     this.model.update({
-        //         number: newNumber
-        //     }).then((data) => {
-        //         this.view.render(data)
-        //     })
-        // },
-        // minusOne() {
-        //     let newNumber = $('#number').text() - 1
-        //     this.model.update({
-        //         number: newNumber
-        //     }).then((data) => {
-        //         this.view.render(data)
-        //     })
-        // },
-        // reset() {
-        //     this.model.update({
-        //         number: 0
-        //     }).then((data) => {
-        //         this.view.render(data)
-        //     })
-        // },
-    //     bindEvents() {
-    //         $(this.view.el).on('click', '#addOne', this.addOne.bind(this))
-    //         $(this.view.el).on('click', '#minusOne', this.minusOne.bind(this))
-    //         $(this.view.el).on('click', '#reset', this.reset.bind(this))
-    //     }
-    // }
-
-    // controller.init({
-    //     view: view,
-    //     model: model
-    // })
-
 
 
     // 模拟响应
